@@ -1,5 +1,14 @@
-import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { PostService } from './post.service';
+import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 
 @Controller('post')
 export class PostController {
@@ -7,26 +16,29 @@ export class PostController {
 
   @Get()
   getAll() {
-    return 'get all post';
+    return this.postService.getAll();
   }
 
   @Get('/:postId')
-  getOne() {
-    return 'get a post';
+  getOne(@Param('postId') postId: number) {
+    return this.postService.getOne(postId);
   }
 
   @Post()
-  create() {
-    return 'create post';
+  create(@Body() createPostDto: CreatePostDto) {
+    return this.postService.create(createPostDto);
   }
 
   @Patch('/:postId')
-  update() {
-    return 'update post';
+  update(
+    @Param('postId') postId: number,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    return this.postService.update(postId, updatePostDto);
   }
 
   @Delete('/:postId')
-  remove() {
-    return 'deleted';
+  remove(@Param('postId') postId: number) {
+    return this.postService.deleteOne(postId);
   }
 }
