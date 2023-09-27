@@ -35,10 +35,10 @@ export class UserService {
     userId: number,
     updateUserDto: UpdateUserDto,
   ): Promise<ResponseUserDto> {
-    const userInstance = await UserModel.update({
-      userId: userId,
-      tagList: updateUserDto.tagList,
-    });
+    const userInstance = await UserModel.update(
+      { userId },
+      { tagList: updateUserDto.tagList },
+    );
     const { username, tagList } = userInstance.toJSON();
     return { userId, username, tagList };
   }
