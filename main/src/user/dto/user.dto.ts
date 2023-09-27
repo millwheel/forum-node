@@ -1,6 +1,8 @@
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 export class CreateUserDto {
+  @IsNumber()
+  readonly userId: number;
   @IsString()
   readonly username: string;
   @IsString({ each: true })
@@ -10,4 +12,10 @@ export class CreateUserDto {
 export class UpdateUserDto {
   @IsString({ each: true })
   readonly tagList: string[];
+}
+
+export class ResponseUserDto {
+  userId: number;
+  username: string;
+  tagList: string[];
 }

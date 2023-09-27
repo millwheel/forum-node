@@ -1,44 +1,47 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { User } from './entity/user.entity';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { CreateUserDto, ResponseUserDto, UpdateUserDto } from './dto/user.dto';
+import { UserModel } from './entity/user.model';
 
 @Injectable()
 export class UserService {
-  private users: User[] = [];
-
-  getAll(): User[] {
-    return this.users;
+  async getAll(): Promise<ResponseUserDto[]> {
+    const userInstances = await UserModel.scan().exec();
+    return userInstances.map((user) => {
+      const { userId, username, tagList } = user.toJSON();
+      return { userId, username, tagList };
+    });
   }
 
-  getOne(userId: number): User {
-    const user = this.users.find((user) => user.userId == userId);
-    if (!user) {
-      throw new NotFoundException(`User with Id: ${userId} not found.`);
-    }
-    return user;
+  async getOne(userId: number): Promise<ResponseUserDto> {
+    const userInstance = await UserModel.get(userId);
+    const { username, tagList } = userInstance.toJSON();
+    return { userId, username, tagList };
   }
 
-  create(createUserDto: CreateUserDto): User {
-    const user = new User();
-    user.userId = this.users.length + 1;
-    user.username = createUserDto.username;
-    user.tagList = createUserDto.tagList;
-    user.token = '';
-    this.users.push(user);
-    return user;
+  async create(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
+    const userInstance = await UserModel.create({
+      userId: createUserDto.userId,
+      username: createUserDto.username,
+      tagList: createUserDto.tagList,
+      token: '',
+    });
+    const { userId, username, tagList } = userInstance.toJSON();
+    return { userId, username, tagList };
   }
 
-  update(userId: number, updateUserDto: UpdateUserDto): User {
-    const user = this.getOne(userId);
-    user.tagList = updateUserDto.tagList;
-    return user;
+  async update(
+    userId: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<ResponseUserDto> {
+    const userInstance = await UserModel.update({
+      userId: userId,
+      tagList: updateUserDto.tagList,
+    });
+    const { username, tagList } = userInstance.toJSON();
+    return { userId, username, tagList };
   }
 
-  deleteOne(userId: number): void {
-    const userIndex = this.users.findIndex((user) => user.userId === userId);
-    if (userIndex === -1) {
-      throw new NotFoundException(`User with Id: ${userId} not found.`);
-    }
-    this.users.splice(userIndex, 1);
+  async deleteOne(userId: number) {
+    await UserModel.delete(userId);
   }
 }
