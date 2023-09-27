@@ -13,3 +13,9 @@ export class UpdateUserDto {
   @IsString({ each: true })
   readonly tagList: string[];
 }
+
+export class ResponseUserDto {
+  userId: number;
+  username: string;
+  tagList: string[];
+}
