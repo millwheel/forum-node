@@ -6,10 +6,12 @@ import { UserModel } from './entity/user.model';
 export class UserService {
   async getAll(): Promise<ResponseUserDto[]> {
     const userInstances = await UserModel.scan().exec();
-    return userInstances.map((user) => {
+    const responseUserDtos = new Array();
+    userInstances.map((user) => {
       const { userId, username, tagList } = user.toJSON();
-      return { userId, username, tagList };
+      responseUserDtos.push({ userId, username, tagList });
     });
+    return responseUserDtos;
   }
 
   async getOne(userId: number): Promise<ResponseUserDto> {
@@ -33,10 +35,10 @@ export class UserService {
     userId: number,
     updateUserDto: UpdateUserDto,
   ): Promise<ResponseUserDto> {
-    const userInstance = await UserModel.update({
-      userId: userId,
-      tagList: updateUserDto.tagList,
-    });
+    const userInstance = await UserModel.update(
+      { userId },
+      { tagList: updateUserDto.tagList },
+    );
     const { username, tagList } = userInstance.toJSON();
     return { userId, username, tagList };
   }
