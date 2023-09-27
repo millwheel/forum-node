@@ -6,10 +6,12 @@ import { UserModel } from './entity/user.model';
 export class UserService {
   async getAll(): Promise<ResponseUserDto[]> {
     const userInstances = await UserModel.scan().exec();
-    return userInstances.map((user) => {
+    const responseUserDtos = new Array();
+    userInstances.map((user) => {
       const { userId, username, tagList } = user.toJSON();
-      return { userId, username, tagList };
+      responseUserDtos.push({ userId, username, tagList });
     });
+    return responseUserDtos;
   }
 
   async getOne(userId: number): Promise<ResponseUserDto> {
