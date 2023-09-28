@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto, ResponseUserDto, UpdateUserDto } from './dto/user.dto';
 import { UserModel } from './entity/user.model';
+import { tagModel } from './entity/tag.model';
 
 @Injectable()
 export class UserService {
@@ -27,6 +28,9 @@ export class UserService {
       tagList: createUserDto.tagList,
       token: '',
     });
+
+    await this.updateTagsForUser(createUserDto.userId, createUserDto.tagList);
+
     const { userId, username, tagList } = userInstance.toJSON();
     return { userId, username, tagList };
   }
@@ -39,8 +43,28 @@ export class UserService {
       { userId },
       { tagList: updateUserDto.tagList },
     );
+
+    await this.updateTagsForUser(userId, updateUserDto.tagList);
+
     const { username, tagList } = userInstance.toJSON();
     return { userId, username, tagList };
+  }
+
+  private async updateTagsForUser(
+    userId: number,
+    tags: string[],
+  ): Promise<void> {
+    for (const tag of tags) {
+      let tagEntity = await tagModel.get(tag);
+      if (tagEntity) {
+        if (!tagEntity.userId.includes(userId)) {
+          tagEntity.userId.push(userId);
+          await tagModel.update({ tagName: tag }, { userId: tagEntity.userId });
+        }
+      } else {
+        await tagModel.create({ tagName: tag, userId: [userId] });
+      }
+    }
   }
 
   async deleteOne(userId: number) {
