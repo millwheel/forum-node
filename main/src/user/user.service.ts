@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto, ResponseUserDto, UpdateUserDto } from './dto/user.dto';
 import { UserModel } from './entity/user.model';
 import { tagModel } from './entity/tag.model';
@@ -17,6 +17,9 @@ export class UserService {
 
   async getOne(userId: number): Promise<ResponseUserDto> {
     const userInstance = await UserModel.get(userId);
+    if (!userInstance) {
+      new NotFoundException(`The user doesn't exist. (userId: ${userId})`);
+    }
     const { username, tagList } = userInstance.toJSON();
     return { userId, username, tagList };
   }
@@ -43,6 +46,9 @@ export class UserService {
       { userId },
       { tagList: updateUserDto.tagList },
     );
+    if (!userInstance) {
+      new NotFoundException(`The user doesn't exist. (userId: ${userId})`);
+    }
 
     await this.updateTagsForUser(userId, updateUserDto.tagList);
 
@@ -68,6 +74,24 @@ export class UserService {
   }
 
   async deleteOne(userId: number) {
+    const userInstance = await UserModel.get(userId);
+    if (!userInstance) {
+      new NotFoundException(`The user doesn't exist. (userId: ${userId})`);
+    }
+
+    const { tagList } = userInstance.toJSON();
+    for (const tag of tagList) {
+      let tagEntity = await tagModel.get(tag);
+      if (tagEntity) {
+        const updatedUserIds = tagEntity.userId.filter((id) => id !== userId);
+
+        if (updatedUserIds.length === 0) {
+          await tagModel.delete(tag);
+        } else {
+          await tagModel.update({ tagName: tag }, { userId: updatedUserIds });
+        }
+      }
+    }
     await UserModel.delete(userId);
   }
 }
