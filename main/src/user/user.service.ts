@@ -50,7 +50,14 @@ export class UserService {
       new NotFoundException(`The user doesn't exist. (userId: ${userId})`);
     }
 
-    await this.updateTagsForUser(userId, updateUserDto.tagList);
+    const existingTags = userInstance.tagList;
+    const newTags = updateUserDto.tagList;
+
+    const tagsToRemove = existingTags.filter((tag) => !newTags.includes(tag));
+    const tagsToAdd = newTags.filter((tag) => !existingTags.includes(tag));
+
+    await this.removeTagsForUser(userId, tagsToRemove);
+    await this.updateTagsForUser(userId, tagsToAdd);
 
     const { username, tagList } = userInstance.toJSON();
     return { userId, username, tagList };
@@ -69,6 +76,23 @@ export class UserService {
         }
       } else {
         await tagModel.create({ tagName: tag, userId: [userId] });
+      }
+    }
+  }
+
+  private async removeTagsForUser(
+    userId: number,
+    tags: string[],
+  ): Promise<void> {
+    for (const tag of tags) {
+      let tagEntity = await tagModel.get(tag);
+      if (tagEntity) {
+        const updatedUserIds = tagEntity.userId.filter((id) => id !== userId);
+        if (updatedUserIds.length === 0) {
+          await tagModel.delete(tag);
+        } else {
+          await tagModel.update({ tagName: tag }, { userId: updatedUserIds });
+        }
       }
     }
   }
