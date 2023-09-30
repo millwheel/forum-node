@@ -1,11 +1,12 @@
 import { Module, Global, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Kafka } from 'kafkajs';
+import { Kafka, Producer } from 'kafkajs';
 
 @Global()
 @Module({})
 export class KafkaModule implements OnModuleInit {
   private kafka: Kafka;
+  private _producer: Producer;
 
   constructor(private configService: ConfigService) {}
 
@@ -20,9 +21,10 @@ export class KafkaModule implements OnModuleInit {
       },
       ssl: true,
     });
+    this._producer = this.kafka.producer();
   }
 
   get producer() {
-    return this.kafka.producer();
+    return this._producer;
   }
 }
