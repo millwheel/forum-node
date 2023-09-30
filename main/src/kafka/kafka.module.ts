@@ -12,11 +12,11 @@ export class KafkaModule implements OnModuleInit {
   onModuleInit() {
     this.kafka = new Kafka({
       clientId: 'nestjs-app',
-      brokers: [this.configService.get<string>('CONDUKTOR_BOOTSTRAP_SERVER')],
+      brokers: [this.configService.get<string>('CONFLUENT_BOOTSTRAP_SERVER')],
       sasl: {
         mechanism: 'plain',
-        username: this.configService.get<string>('CONDUKTOR_USERNAME'),
-        password: this.configService.get<string>('CONDUKTOR_PASSWORD'),
+        username: this.configService.get<string>('CONFLUENT_API_KEY'),
+        password: this.configService.get<string>('CONFLUENT_API_SECRET'),
       },
       ssl: true,
     });
