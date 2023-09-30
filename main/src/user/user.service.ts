@@ -70,8 +70,8 @@ export class UserService {
     for (const tag of tags) {
       let tagEntity = await TagModel.get(tag);
       if (tagEntity) {
-        if (!tagEntity.userId.includes(userId)) {
-          tagEntity.userId.push(userId);
+        if (!tagEntity.userIds.includes(userId)) {
+          tagEntity.userIds.push(userId);
           await TagModel.update({ tagName: tag }, { userId: tagEntity.userId });
         }
       } else {
@@ -87,7 +87,7 @@ export class UserService {
     for (const tag of tags) {
       let tagEntity = await TagModel.get(tag);
       if (tagEntity) {
-        const updatedUserIds = tagEntity.userId.filter((id) => id !== userId);
+        const updatedUserIds = tagEntity.userIds.filter((id) => id !== userId);
         if (updatedUserIds.length === 0) {
           await TagModel.delete(tag);
         } else {
@@ -107,7 +107,7 @@ export class UserService {
     for (const tag of tagList) {
       let tagEntity = await TagModel.get(tag);
       if (tagEntity) {
-        const updatedUserIds = tagEntity.userId.filter((id) => id !== userId);
+        const updatedUserIds = tagEntity.userIds.filter((id) => id !== userId);
 
         if (updatedUserIds.length === 0) {
           await TagModel.delete(tag);

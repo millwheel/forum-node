@@ -6,7 +6,7 @@ const tagSchema = new dynamoose.Schema({
     hashKey: true,
     required: true,
   },
-  userId: {
+  userIds: {
     type: Array,
     schema: [Number],
   },
