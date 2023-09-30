@@ -12,4 +12,4 @@ const tagSchema = new dynamoose.Schema({
   },
 });
 
-export const tagModel = dynamoose.model('forum_tag', tagSchema);
+export const TagModel = dynamoose.model('forum_tag', tagSchema);
