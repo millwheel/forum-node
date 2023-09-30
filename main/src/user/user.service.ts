@@ -72,10 +72,13 @@ export class UserService {
       if (tagEntity) {
         if (!tagEntity.userIds.includes(userId)) {
           tagEntity.userIds.push(userId);
-          await TagModel.update({ tagName: tag }, { userId: tagEntity.userId });
+          await TagModel.update(
+            { tagName: tag },
+            { userIds: tagEntity.userIds },
+          );
         }
       } else {
-        await TagModel.create({ tagName: tag, userId: [userId] });
+        await TagModel.create({ tagName: tag, userIds: [userId] });
       }
     }
   }
@@ -91,7 +94,7 @@ export class UserService {
         if (updatedUserIds.length === 0) {
           await TagModel.delete(tag);
         } else {
-          await TagModel.update({ tagName: tag }, { userId: updatedUserIds });
+          await TagModel.update({ tagName: tag }, { userIds: updatedUserIds });
         }
       }
     }
@@ -112,7 +115,7 @@ export class UserService {
         if (updatedUserIds.length === 0) {
           await TagModel.delete(tag);
         } else {
-          await TagModel.update({ tagName: tag }, { userId: updatedUserIds });
+          await TagModel.update({ tagName: tag }, { userIds: updatedUserIds });
         }
       }
     }
