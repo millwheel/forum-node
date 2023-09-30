@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto, ResponseUserDto, UpdateUserDto } from './dto/user.dto';
 import { UserModel } from './entity/user.model';
-import { tagModel } from './entity/tag.model';
+import { TagModel } from './entity/tag.model';
 
 @Injectable()
 export class UserService {
@@ -68,14 +68,14 @@ export class UserService {
     tags: string[],
   ): Promise<void> {
     for (const tag of tags) {
-      let tagEntity = await tagModel.get(tag);
+      let tagEntity = await TagModel.get(tag);
       if (tagEntity) {
-        if (!tagEntity.userId.includes(userId)) {
-          tagEntity.userId.push(userId);
-          await tagModel.update({ tagName: tag }, { userId: tagEntity.userId });
+        if (!tagEntity.userIds.includes(userId)) {
+          tagEntity.userIds.push(userId);
+          await TagModel.update({ tagName: tag }, { userId: tagEntity.userId });
         }
       } else {
-        await tagModel.create({ tagName: tag, userId: [userId] });
+        await TagModel.create({ tagName: tag, userId: [userId] });
       }
     }
   }
@@ -85,13 +85,13 @@ export class UserService {
     tags: string[],
   ): Promise<void> {
     for (const tag of tags) {
-      let tagEntity = await tagModel.get(tag);
+      let tagEntity = await TagModel.get(tag);
       if (tagEntity) {
-        const updatedUserIds = tagEntity.userId.filter((id) => id !== userId);
+        const updatedUserIds = tagEntity.userIds.filter((id) => id !== userId);
         if (updatedUserIds.length === 0) {
-          await tagModel.delete(tag);
+          await TagModel.delete(tag);
         } else {
-          await tagModel.update({ tagName: tag }, { userId: updatedUserIds });
+          await TagModel.update({ tagName: tag }, { userId: updatedUserIds });
         }
       }
     }
@@ -105,14 +105,14 @@ export class UserService {
 
     const { tagList } = userInstance.toJSON();
     for (const tag of tagList) {
-      let tagEntity = await tagModel.get(tag);
+      let tagEntity = await TagModel.get(tag);
       if (tagEntity) {
-        const updatedUserIds = tagEntity.userId.filter((id) => id !== userId);
+        const updatedUserIds = tagEntity.userIds.filter((id) => id !== userId);
 
         if (updatedUserIds.length === 0) {
-          await tagModel.delete(tag);
+          await TagModel.delete(tag);
         } else {
-          await tagModel.update({ tagName: tag }, { userId: updatedUserIds });
+          await TagModel.update({ tagName: tag }, { userId: updatedUserIds });
         }
       }
     }

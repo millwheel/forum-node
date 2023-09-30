@@ -6,10 +6,10 @@ const tagSchema = new dynamoose.Schema({
     hashKey: true,
     required: true,
   },
-  userId: {
+  userIds: {
     type: Array,
     schema: [Number],
   },
 });
 
-export const tagModel = dynamoose.model('forum_tag', tagSchema);
+export const TagModel = dynamoose.model('forum_tag', tagSchema);
