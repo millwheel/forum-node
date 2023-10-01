@@ -4,12 +4,14 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Consumer, Kafka } from 'kafkajs';
+import { Consumer, EachMessagePayload, Kafka } from 'kafkajs';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class ConsumerService implements OnModuleInit, OnApplicationShutdown {
   private readonly kafka: Kafka;
   private readonly consumer: Consumer;
+  private readonly notificationService: NotificationService;
 
   constructor(private readonly configService: ConfigService) {
     this.kafka = new Kafka({
@@ -22,16 +24,18 @@ export class ConsumerService implements OnModuleInit, OnApplicationShutdown {
       },
       ssl: true,
     });
-    this.consumer = this.kafka.consumer({ groupId: 'nestjs-kafka' });
+    this.consumer = this.kafka.consumer({ groupId: 'notification' });
+    this.notificationService = new NotificationService();
   }
 
   async onModuleInit() {
     await this.consumer.connect();
-  }
-
-  async consume(topic: string, eachMessage: (args: any) => Promise<void>) {
-    await this.consumer.subscribe({ topic });
-    await this.consumer.run({ eachMessage });
+    await this.consumer.subscribe({ topics: ['forum_notification'] });
+    await this.consumer.run({
+      eachMessage: this.notificationService.messageConsume.bind(
+        this.notificationService,
+      ),
+    });
   }
 
   async onApplicationShutdown() {
