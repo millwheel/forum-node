@@ -1,13 +1,13 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { PostModel } from './entity/post.model';
 import { TagModel } from 'src/user/entity/tag.model';
-import { Producer } from 'kafkajs';
 import { NotiMessageDto } from './dto/noti-message.dto';
+import { ProducerService } from 'src/kafka/producer.service';
 
 @Injectable()
 export class PostService {
-  constructor(@Inject('KAFKA_PRODUCER') private readonly producer: Producer) {}
+  constructor(private readonly producerService: ProducerService) {}
 
   async getAll() {
     const postInstances = await PostModel.scan().exec();
@@ -61,12 +61,10 @@ export class PostService {
     userId: number,
     title: string,
   ) {
-    await this.producer.connect();
-
     const notiMessage = new NotiMessageDto(userId, postId, title);
     const payload = JSON.stringify(notiMessage);
 
-    const sendingResult = await this.producer.send({
+    const sendingResult = await this.producerService.produce({
       topic: 'forum_notification',
       messages: [{ value: payload }],
     });
