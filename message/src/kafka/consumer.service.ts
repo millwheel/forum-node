@@ -11,9 +11,11 @@ import { NotificationService } from 'src/notification/notification.service';
 export class ConsumerService implements OnModuleInit, OnApplicationShutdown {
   private readonly kafka: Kafka;
   private readonly consumer: Consumer;
-  private readonly notificationService: NotificationService;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly notificationService: NotificationService,
+  ) {
     this.kafka = new Kafka({
       clientId: 'nestjs-app',
       brokers: [configService.get<string>('CONFLUENT_BOOTSTRAP_SERVER')],
@@ -25,7 +27,6 @@ export class ConsumerService implements OnModuleInit, OnApplicationShutdown {
       ssl: true,
     });
     this.consumer = this.kafka.consumer({ groupId: 'notification' });
-    this.notificationService = new NotificationService();
   }
 
   async onModuleInit() {
