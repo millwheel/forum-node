@@ -4,7 +4,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Consumer, EachMessagePayload, Kafka } from 'kafkajs';
+import { Consumer, Kafka } from 'kafkajs';
 import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
