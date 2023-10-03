@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { DynamooseModule } from './dynamoose/dynamoose.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { ConfigModule } from '@nestjs/config';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
